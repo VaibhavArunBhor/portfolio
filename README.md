@@ -1,2 +1,1 @@
-# portfolio
-Vaibhav Bhor — Digital Portfolio
+index.html
