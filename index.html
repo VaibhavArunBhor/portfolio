@@ -32,8 +32,8 @@
   --shadow:0 2px 12px rgba(27,43,75,0.10);
   --shadow2:0 8px 32px rgba(27,43,75,0.14);
 }
-html{scroll-behavior:smooth;font-size:16px}
-body{background:var(--cream);color:var(--navy);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+html{scroll-behavior:smooth;font-size:16px;overflow-x:hidden;max-width:100%}
+body{background:var(--cream);color:var(--navy);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;max-width:100%;position:relative}
 
 /* ── NAV ── */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.97);backdrop-filter:blur(12px);border-bottom:2px solid var(--gold)}
@@ -47,8 +47,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
 .brand-tagline{font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-top:1px}
 
 /* Button-style nav links */
+.nav-scroll-wrap{position:relative;min-width:0;flex:1;display:flex}
 .nav-links{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;min-width:0}
 .nav-links::-webkit-scrollbar{display:none}
+.nav-fade{position:absolute;top:0;bottom:0;width:28px;pointer-events:none;z-index:2;opacity:0;transition:opacity .25s}
+.nav-fade-r{right:0;background:linear-gradient(to right,transparent,rgba(27,43,75,0.97) 75%)}
+.nav-fade-l{left:0;background:linear-gradient(to left,transparent,rgba(27,43,75,0.97) 75%)}
+.nav-fade.show{opacity:1}
 .nav-links a{font-size:12px;font-weight:600;color:rgba(255,255,255,0.82);text-decoration:none;padding:8px 14px;border-radius:7px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);transition:all .2s;cursor:pointer;white-space:nowrap}
 .nav-links a:hover{color:var(--white);background:rgba(255,255,255,0.1);border-color:rgba(201,151,58,0.4)}
 .nav-links a.active{color:var(--navy);background:var(--gold);border-color:var(--gold);font-weight:700}
@@ -361,7 +366,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
   .brand-name{font-size:13px}
   .brand-tagline{display:none}
   .brand-mark{width:28px;height:28px;font-size:11px}
-  .nav-links{gap:5px;max-width:58vw}
+  .nav-links{gap:5px;max-width:58vw;padding-right:14px}
   .nav-links a{padding:6px 11px;font-size:11px;flex-shrink:0}
 
   /* hero */
@@ -478,14 +483,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
         <span class="brand-tagline">Digital Experience Portfolio</span>
       </span>
     </a>
-    <div class="nav-links">
-      <a href="#cases">Case Studies</a>
-      <a href="#ba">How I Work</a>
-      <a href="#about">Career Journey</a>
-      <a href="#skills">Skills &amp; Credentials</a>
-      <a href="#tools">Tools &amp; Products</a>
-      <a href="#recommendations">Testimonials</a>
-      <a href="#closing">Contact</a>
+    <div class="nav-scroll-wrap">
+      <div class="nav-links" id="navLinks">
+        <a href="#cases">Case Studies</a>
+        <a href="#ba">How I Work</a>
+        <a href="#about">Career Journey</a>
+        <a href="#skills">Skills &amp; Credentials</a>
+        <a href="#tools">Tools &amp; Products</a>
+        <a href="#recommendations">Testimonials</a>
+        <a href="#closing">Contact</a>
+      </div>
+      <div class="nav-fade nav-fade-l" id="navFadeL"></div>
+      <div class="nav-fade nav-fade-r" id="navFadeR"></div>
     </div>
   </div>
 </nav>
@@ -2101,6 +2110,25 @@ var barSection = document.querySelector('#skills');
 if (barSection) barObs.observe(barSection);
 
 
+
+
+// ── NAV SCROLL FADE INDICATORS ──
+(function() {
+  const navLinks = document.getElementById('navLinks');
+  const fadeL = document.getElementById('navFadeL');
+  const fadeR = document.getElementById('navFadeR');
+  if (!navLinks || !fadeL || !fadeR) return;
+
+  function updateFades() {
+    const maxScroll = navLinks.scrollWidth - navLinks.clientWidth;
+    fadeL.classList.toggle('show', navLinks.scrollLeft > 4);
+    fadeR.classList.toggle('show', navLinks.scrollLeft < maxScroll - 4);
+  }
+
+  updateFades();
+  navLinks.addEventListener('scroll', updateFades, { passive: true });
+  window.addEventListener('resize', updateFades);
+})();
 
 // ── EXPERTISE TAG ROUTING (filter case studies + scroll, or jump to a section) ──
 document.querySelectorAll('.expertise-item[data-goto]').forEach(function(btn) {
