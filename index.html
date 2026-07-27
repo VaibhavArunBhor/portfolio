@@ -470,6 +470,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
   .name-row{flex-direction:row;gap:12px}
   .avatar-img{width:72px;height:72px}
 }
+
+/* ── HAMBURGER MENU (mobile only) ── */
+.hamburger-btn{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:38px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:7px;cursor:pointer;flex-shrink:0;padding:0}
+.hamburger-line{width:18px;height:2px;background:var(--gold);margin:0 auto;transition:transform .25s,opacity .25s}
+.hamburger-btn.open .hamburger-line:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger-btn.open .hamburger-line:nth-child(2){opacity:0}
+.hamburger-btn.open .hamburger-line:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(27,43,75,0.99);backdrop-filter:blur(12px);border-bottom:2px solid var(--gold);max-height:0;overflow:hidden;transition:max-height .3s ease}
+.mobile-menu.open{max-height:80vh;overflow-y:auto}
+.mobile-menu-group{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
+.mobile-menu-group-last{border-bottom:none}
+.mobile-menu-label{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.mobile-menu-group a{display:block;padding:10px 4px;color:rgba(255,255,255,0.85);text-decoration:none;font-size:15px;font-weight:600;border-radius:6px;transition:color .2s}
+.mobile-menu-group a:active{color:var(--gold)}
+.mobile-menu-group a.active{color:var(--gold)}
+
+@media(max-width:768px){
+  .nav-scroll-wrap{display:none}
+  .hamburger-btn{display:flex}
+  .mobile-menu{display:block}
+}
 </style>
 </head>
 <body>
@@ -483,6 +505,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
         <span class="brand-tagline">Digital Experience Portfolio</span>
       </span>
     </a>
+
+    <!-- Desktop/tablet nav -->
     <div class="nav-scroll-wrap">
       <div class="nav-links" id="navLinks">
         <a href="#cases">Case Studies</a>
@@ -495,6 +519,32 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
       </div>
       <div class="nav-fade nav-fade-l" id="navFadeL"></div>
       <div class="nav-fade nav-fade-r" id="navFadeR"></div>
+    </div>
+
+    <!-- Mobile hamburger toggle -->
+    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+    </button>
+  </div>
+
+  <!-- Mobile dropdown panel, grouped -->
+  <div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-group">
+      <div class="mobile-menu-label">The Work</div>
+      <a href="#cases">Case Studies</a>
+      <a href="#ba">How I Work</a>
+      <a href="#about">Career Journey</a>
+    </div>
+    <div class="mobile-menu-group">
+      <div class="mobile-menu-label">About Me</div>
+      <a href="#skills">Skills &amp; Credentials</a>
+      <a href="#tools">Tools &amp; Products</a>
+      <a href="#recommendations">Testimonials</a>
+    </div>
+    <div class="mobile-menu-group mobile-menu-group-last">
+      <a href="#closing">Contact</a>
     </div>
   </div>
 </nav>
@@ -623,7 +673,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(27,43,75,0.9
           <span class="ts ts-dark">Requirements</span>
           <span class="ts ts-dark">RAID Logs</span>
         </div>
-        <a href="https://drona-ai.vercel.app" target="_blank" rel="noopener" class="tool-link tool-link-dark" style="margin-top:16px">Demo on request ↗</a>
+        <a href="https://analystos-tan.vercel.app/" target="_blank" rel="noopener" class="tool-link tool-link-dark" style="margin-top:16px">Try DRONA AI live ↗</a>
       </div>
 
       <!-- QA WCAG BOT -->
@@ -2112,6 +2162,47 @@ if (barSection) barObs.observe(barSection);
 
 
 
+
+// ── HAMBURGER MENU TOGGLE ──
+(function() {
+  const btn = document.getElementById('hamburgerBtn');
+  const menu = document.getElementById('mobileMenu');
+  if (!btn || !menu) return;
+
+  function closeMenu() {
+    btn.classList.remove('open');
+    menu.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+  function openMenu() {
+    btn.classList.add('open');
+    menu.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (menu.classList.contains('open')) closeMenu(); else openMenu();
+  });
+
+  // Close when a link is tapped
+  menu.querySelectorAll('a').forEach(function(a) {
+    a.addEventListener('click', closeMenu);
+  });
+
+  // Close on outside tap
+  document.addEventListener('click', function(e) {
+    if (menu.classList.contains('open') && !menu.contains(e.target) && !btn.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeMenu();
+  });
+})();
+
 // ── NAV SCROLL FADE INDICATORS ──
 (function() {
   const navLinks = document.getElementById('navLinks');
@@ -2258,13 +2349,12 @@ document.querySelectorAll('.reveal').forEach(function(el) { obs.observe(el); });
 // Trigger hero counters on load
 window.addEventListener('load', function() { runCounters(document.getElementById('hero')); });
 
-// ── NAV HIGHLIGHT ──
+// ── NAV HIGHLIGHT (syncs both desktop nav and mobile menu) ──
 var navObs = new IntersectionObserver(function(entries) {
   entries.forEach(function(e) {
     if (e.isIntersecting) {
-      document.querySelectorAll('.nav-links a').forEach(function(a) { a.classList.remove('active'); });
-      var a = document.querySelector('.nav-links a[href="#' + e.target.id + '"]');
-      if (a) a.classList.add('active');
+      document.querySelectorAll('.nav-links a, .mobile-menu a').forEach(function(a) { a.classList.remove('active'); });
+      document.querySelectorAll('.nav-links a[href="#' + e.target.id + '"], .mobile-menu a[href="#' + e.target.id + '"]').forEach(function(a) { a.classList.add('active'); });
     }
   });
 }, { rootMargin: '-30% 0px -65% 0px' });
